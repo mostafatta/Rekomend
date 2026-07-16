@@ -30,13 +30,13 @@ RUN cd /app/whatsapp-bulk-sender/wa-server && npm install
 # Ensure Playwright browsers are installed (matches pip version)
 RUN playwright install --with-deps chromium
 
-# Copy the rest of the application
+# Copy the entire application
 COPY . /app
 
 # Configure Nginx and startup script
-COPY nginx.conf.template /etc/nginx/nginx.conf.template
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+RUN cp /app/nginx.conf.template /etc/nginx/nginx.conf.template && \
+    cp /app/start.sh /start.sh && \
+    chmod +x /start.sh
 
 # Entrypoint
 CMD ["/start.sh"]
