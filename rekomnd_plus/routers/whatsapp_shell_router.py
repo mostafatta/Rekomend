@@ -28,8 +28,9 @@ templates = Jinja2Templates(directory=str(TMPL_DIR))
 
 router = APIRouter(tags=["WhatsApp"])
 
-WA_BAILEYS_URL = "http://localhost:8085"   # Baileys gateway (no Docker)
-WA_BACKEND_URL = "http://localhost:3001"   # WA FastAPI backend
+import os
+WA_BAILEYS_URL = os.environ.get("WA_GATEWAY_URL", "http://localhost:8085")
+WA_BACKEND_URL = os.environ.get("WHATSAPP_URL", "http://localhost:3001")
 
 
 @router.get("/whatsapp", response_class=HTMLResponse, include_in_schema=False)

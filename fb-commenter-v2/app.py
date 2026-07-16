@@ -1815,5 +1815,5 @@ if __name__ == "__main__":
 
     logger.info("FB Commenter V2 starting on http://localhost:5001")
     # webbrowser.open("http://localhost:5001")
-    port = int(os.environ.get("FLASK_PORT", 5001))
+    port = int(os.environ.get("PORT", os.environ.get("FLASK_PORT", 5001)))
     app.run(host="0.0.0.0", port=port, debug=False, threaded=True)

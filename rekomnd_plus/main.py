@@ -112,7 +112,14 @@ async def startup_event() -> None:
 
 def _render(request: Request, template: str, ctx: dict | None = None, code: int = 200):
     user = get_current_user(request)
-    base = {"current_user": user}
+    base = {
+        "current_user": user,
+        "POSTER_URL": os.environ.get("POSTER_URL", "http://localhost:5000"),
+        "COMMENTER_URL": os.environ.get("COMMENTER_URL", "http://localhost:5001"),
+        "BUYERS_URL": os.environ.get("BUYERS_URL", "http://localhost:8000"),
+        "WHATSAPP_URL": os.environ.get("WHATSAPP_URL", "http://localhost:3001"),
+        "WA_GATEWAY_URL": os.environ.get("WA_GATEWAY_URL", "http://localhost:8085")
+    }
     if ctx:
         base.update(ctx)
     return templates.TemplateResponse(request, template, base, status_code=code)

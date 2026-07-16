@@ -182,13 +182,18 @@
 
 {% block scripts %}
 <script>
+const POSTER_URL = "{{ POSTER_URL }}";
+const COMMENTER_URL = "{{ COMMENTER_URL }}";
+const BUYERS_URL = "{{ BUYERS_URL }}";
+const WHATSAPP_URL = "{{ WHATSAPP_URL }}";
+
 async function checkStatus() {
   const checks = [
     { id: 'svc-gmaps',     url: '/api/health',                      label: 'GMaps API (:7070)' },
-    { id: 'svc-poster',    url: 'http://localhost:5000/api/run/status', label: 'FB Poster (:5000)' },
-    { id: 'svc-commenter', url: 'http://localhost:5001/api/run/status', label: 'FB Commenter (:5001)' },
-    { id: 'svc-buyers',    url: 'http://localhost:8000/api/stats',   label: 'Buyers API (:8000)' },
-    { id: 'svc-whatsapp',  url: 'http://localhost:3001/api/health',  label: 'WhatsApp (:3001)' },
+    { id: 'svc-poster',    url: `${POSTER_URL}/api/run/status`, label: 'FB Poster' },
+    { id: 'svc-commenter', url: `${COMMENTER_URL}/api/run/status`, label: 'FB Commenter' },
+    { id: 'svc-buyers',    url: `${BUYERS_URL}/api/stats`,   label: 'Buyers API' },
+    { id: 'svc-whatsapp',  url: `${WHATSAPP_URL}/api/health`,  label: 'WhatsApp' },
   ];
 
   for (const c of checks) {
@@ -219,7 +224,7 @@ async function loadStats() {
   } catch {}
 
   try {
-    const r = await fetch('http://localhost:5000/api/run/status', { signal: AbortSignal.timeout(2000) });
+    const r = await fetch(`${POSTER_URL}/api/run/status`, { signal: AbortSignal.timeout(2000) });
     if (r.ok) {
       const d = await r.json();
       document.getElementById('stat-poster').textContent = (d.posts_posted || 0).toLocaleString();
@@ -227,7 +232,7 @@ async function loadStats() {
   } catch {}
 
   try {
-    const r = await fetch('http://localhost:5001/api/run/status', { signal: AbortSignal.timeout(2000) });
+    const r = await fetch(`${COMMENTER_URL}/api/run/status`, { signal: AbortSignal.timeout(2000) });
     if (r.ok) {
       const d = await r.json();
       document.getElementById('stat-commenter').textContent = (d.comments_posted || 0).toLocaleString();
@@ -235,7 +240,7 @@ async function loadStats() {
   } catch {}
 
   try {
-    const r = await fetch('http://localhost:8000/api/stats', { signal: AbortSignal.timeout(2000) });
+    const r = await fetch(`${BUYERS_URL}/api/stats`, { signal: AbortSignal.timeout(2000) });
     if (r.ok) {
       const d = await r.json();
       document.getElementById('stat-buyers').textContent = (d.total_leads || 0).toLocaleString();
@@ -244,7 +249,7 @@ async function loadStats() {
 
   // WhatsApp stats — check backend monitor
   try {
-    const r = await fetch('http://localhost:3001/api/monitor/status', { signal: AbortSignal.timeout(2000) });
+    const r = await fetch(`${WHATSAPP_URL}/api/monitor/status`, { signal: AbortSignal.timeout(2000) });
     if (r.ok) {
       const d = await r.json();
       document.getElementById('stat-whatsapp').textContent = (d.messages_sent || 0).toLocaleString();

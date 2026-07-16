@@ -350,6 +350,7 @@
 {% block scripts %}
 <script>
 const WA = '{{ wa_backend_url }}';
+const WA_BAILEYS = '{{ wa_baileys_url }}';
 
 // ── State ──────────────────────────────────────────────
 let fileId = null;
@@ -756,7 +757,7 @@ async function loadMonitorGroups() {
 
   // Load monitored groups from Baileys
   try {
-    const r = await fetch('http://localhost:8085/monitor/groups', {
+    const r = await fetch(`${WA_BAILEYS}/monitor/groups`, {
       headers: { 'apikey': 'supersecretapikey' }
     });
     if (r.ok) {
@@ -804,14 +805,14 @@ async function loadMonitorGroups() {
 async function toggleMonitorGroup(groupId, monitor) {
   try {
     if (monitor) {
-      await fetch('http://localhost:8085/monitor/groups', {
+      await fetch(`${WA_BAILEYS}/monitor/groups`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': 'supersecretapikey' },
         body: JSON.stringify({ group_ids: [groupId] }),
       });
       Toast.success('Group added to monitor');
     } else {
-      await fetch('http://localhost:8085/monitor/groups', {
+      await fetch(`${WA_BAILEYS}/monitor/groups`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'apikey': 'supersecretapikey' },
         body: JSON.stringify({ group_ids: [groupId] }),

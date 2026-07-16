@@ -262,7 +262,7 @@
 
 {% block scripts %}
 <script>
-const BASE = 'http://localhost:5001';
+const BASE = '{{ COMMENTER_URL }}';
 let allKeywords = [];
 
 async function init() {
