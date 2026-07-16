@@ -1,6 +1,5 @@
 FROM mcr.microsoft.com/playwright/python:v1.44.0-jammy
 
-# Install Node.js, Nginx, and gettext-base (for envsubst)
 RUN apt-get update && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs nginx gettext-base && \
@@ -9,16 +8,25 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Cache buster - change this value to force Railway to rebuild from scratch
-ARG CACHE_DATE=2026071603
-COPY . /app
+ARG CACHE_DATE=20260717
 
-# Install Python dependencies one by one to isolate errors
-RUN pip install --no-cache-dir -r /app/rekomnd_plus/requirements.txt || true
-RUN pip install --no-cache-dir -r /app/fb-auto-poster/requirements.txt || true
-RUN pip install --no-cache-dir -r /app/fb-commenter-v2/requirements.txt || true
-RUN pip install --no-cache-dir -r /app/fb_buyers_egypt/requirements.txt || true
-RUN pip install --no-cache-dir -r /app/whatsapp-bulk-sender/whatsapp-bulk-sender/backend/requirements.txt
+# Force fresh copy with --link to bypass Railway stale cache
+COPY --link . /app
+
+# Flatten: copy all requirements to a known location so we never hit missing-path errors
+RUN mkdir -p /reqs && \
+    cp /app/rekomnd_plus/requirements.txt                    /reqs/rekomnd_plus.txt       2>/dev/null || true && \
+    cp /app/fb-auto-poster/requirements.txt                  /reqs/fb_poster.txt          2>/dev/null || true && \
+    cp /app/fb-commenter-v2/requirements.txt                 /reqs/fb_commenter.txt       2>/dev/null || true && \
+    cp /app/fb_buyers_egypt/requirements.txt                 /reqs/fb_buyers.txt          2>/dev/null || true && \
+    find /app/whatsapp-bulk-sender -name "requirements.txt" -exec cp {} /reqs/wa_sender.txt \; 2>/dev/null || true
+
+# Install all dependencies
+RUN pip install --no-cache-dir -r /reqs/rekomnd_plus.txt || true
+RUN pip install --no-cache-dir -r /reqs/fb_poster.txt || true
+RUN pip install --no-cache-dir -r /reqs/fb_commenter.txt || true
+RUN pip install --no-cache-dir -r /reqs/fb_buyers.txt || true
+RUN pip install --no-cache-dir -r /reqs/wa_sender.txt
 
 # Install Node dependencies and Playwright browsers
 RUN cd /app/whatsapp-bulk-sender/wa-server && npm install
