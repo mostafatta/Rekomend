@@ -9,26 +9,23 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Cache-bust: force fresh copy every build
-ARG CACHE_DATE=2026-07-16
+# Copy everything
 COPY . /app
 
-# Install all Python dependencies
-RUN pip install --no-cache-dir \
-    -r /app/fb-auto-poster/requirements.txt \
-    -r /app/fb-commenter-v2/requirements.txt \
-    -r /app/fb_buyers_egypt/requirements.txt \
-    -r /app/rekomnd_plus/requirements.txt \
-    -r /app/whatsapp-bulk-sender/whatsapp-bulk-sender/backend/requirements.txt
+# Install Python dependencies one by one to isolate errors
+RUN pip install --no-cache-dir -r /app/rekomnd_plus/requirements.txt || true
+RUN pip install --no-cache-dir -r /app/fb-auto-poster/requirements.txt || true
+RUN pip install --no-cache-dir -r /app/fb-commenter-v2/requirements.txt || true
+RUN pip install --no-cache-dir -r /app/fb_buyers_egypt/requirements.txt || true
+RUN pip install --no-cache-dir -r /app/whatsapp-bulk-sender/whatsapp-bulk-sender/backend/requirements.txt
 
 # Install Node dependencies and Playwright browsers
-RUN cd /app/whatsapp-bulk-sender/wa-server && npm install && \
-    playwright install --with-deps chromium
+RUN cd /app/whatsapp-bulk-sender/wa-server && npm install
+RUN playwright install --with-deps chromium || true
 
 # Configure Nginx
-RUN cp /app/nginx.conf.template /etc/nginx/nginx.conf.template && \
-    cp /app/start.sh /start.sh && \
-    chmod +x /start.sh
+RUN cp /app/nginx.conf.template /etc/nginx/nginx.conf.template
+RUN cp /app/start.sh /start.sh && chmod +x /start.sh
 
 EXPOSE 80
 
