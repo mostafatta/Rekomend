@@ -39,11 +39,11 @@ DATA_DIR = BASE_DIR / "data"
 TEMPLATES_DIR = BASE_DIR / "templates"
 UPLOADS_DIR = DATA_DIR / "uploads"
 
+from flask_cors import CORS
 app = Flask(__name__, template_folder=str(TEMPLATES_DIR))
+CORS(app)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", uuid.uuid4().hex)
-# Allow REKOMND+ unified shell (port 8080) to call this API
-if _CORS:
-    _CORS(app, resources={r"/api/*": {"origins": ["http://localhost:7070", "http://127.0.0.1:7070"]}})
+# Global CORS is applied above
 
 logging.basicConfig(
     level=logging.INFO,

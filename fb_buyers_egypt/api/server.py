@@ -22,13 +22,8 @@ app = FastAPI(title="Egypt RE Leads API")
 # Allow CORS for React frontend (Vite defaults to 5173) and REKOMND+ shell (7070)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:7070",
-        "http://127.0.0.1:7070",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
