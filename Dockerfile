@@ -9,7 +9,8 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copy everything
+# Cache buster - change this value to force Railway to rebuild from scratch
+ARG CACHE_DATE=2026071603
 COPY . /app
 
 # Install Python dependencies one by one to isolate errors
