@@ -3,6 +3,10 @@ set -e
 
 echo "Starting REKOMND+ Monorepo Container..."
 
+# Ensure Playwright browsers are available (safety net)
+echo "Ensuring Playwright browsers..."
+playwright install --with-deps chromium 2>/dev/null || true
+
 # 1. Configure Nginx with dynamic Railway PORT
 envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /tmp/nginx.conf
 
@@ -19,14 +23,10 @@ echo "Starting Buyers API (:8000)..."
 uvicorn fb_buyers_egypt.api.server:app --host 127.0.0.1 --port 8000 --no-access-log &
 
 echo "Starting WA Backend (:3001)..."
-cd whatsapp-bulk-sender/whatsapp-bulk-sender/backend
-uvicorn main:app --host 127.0.0.1 --port 3001 --no-access-log &
-cd ../../../
+(cd whatsapp-bulk-sender/whatsapp-bulk-sender/backend && uvicorn main:app --host 127.0.0.1 --port 3001 --no-access-log) &
 
 echo "Starting WA Gateway (:8085)..."
-cd whatsapp-bulk-sender/wa-server
-PORT=8085 node server.js &
-cd ../../
+(cd whatsapp-bulk-sender/wa-server && PORT=8085 node server.js) &
 
 echo "Starting Main Dashboard (:7070)..."
 export POSTER_URL="/proxy/poster"
@@ -34,9 +34,11 @@ export COMMENTER_URL="/proxy/commenter"
 export BUYERS_URL="/proxy/buyers"
 export WHATSAPP_URL="/proxy/wa-backend"
 export WA_GATEWAY_URL="/proxy/wa-gateway"
-cd rekomnd_plus
-uvicorn main:app --host 127.0.0.1 --port 7070 --no-access-log &
-cd ..
+(cd rekomnd_plus && uvicorn main:app --host 127.0.0.1 --port 7070 --no-access-log) &
+
+# Wait for services to be ready
+echo "Waiting for services to initialize..."
+sleep 5
 
 # 3. Start Nginx in foreground to keep container alive
 echo "Starting Nginx Proxy on port $PORT..."

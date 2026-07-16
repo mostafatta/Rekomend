@@ -27,6 +27,9 @@ RUN pip install --no-cache-dir -r fb-auto-poster/requirements.txt && \
 # Install Node dependencies
 RUN cd /app/whatsapp-bulk-sender/wa-server && npm install
 
+# Ensure Playwright browsers are installed (matches pip version)
+RUN playwright install --with-deps chromium
+
 # Copy the rest of the application
 COPY . /app
 

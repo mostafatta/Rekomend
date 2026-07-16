@@ -1442,6 +1442,35 @@ def api_session_status():
     return jsonify(result)
 
 
+@app.route("/api/session/upload", methods=["POST"])
+def api_session_upload():
+    """Upload Facebook cookies as JSON to create a session (for headless/Docker environments)."""
+    body = request.get_json(silent=True) or {}
+    cookies = body.get("cookies", [])
+    if not cookies:
+        return jsonify({"error": "No cookies provided. Send {cookies: [{name, value, domain, ...}]}"}), 400
+
+    cookie_names = {c.get("name") for c in cookies}
+    required = {"c_user", "xs", "datr", "fr"}
+    missing = required - cookie_names
+    if missing:
+        return jsonify({"error": f"Missing required cookies: {', '.join(missing)}"}), 400
+
+    session_path = Path(settings.get("session_file", str(BASE_DIR / "data" / "fb_session.json")))
+    session_path.parent.mkdir(parents=True, exist_ok=True)
+
+    import time as _time
+    session_data = {
+        "cookies": cookies,
+        "created_at": _time.time(),
+        "expires_at": _time.time() + 86400 * 7,
+    }
+    with open(session_path, "w") as f:
+        json.dump(session_data, f, indent=2)
+
+    return jsonify({"success": True, "message": f"Saved {len(cookies)} cookies", "valid": True})
+
+
 @app.route("/api/session/refresh", methods=["POST"])
 def api_session_refresh():
     """Trigger the login.py script to refresh the Facebook session."""
