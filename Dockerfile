@@ -9,34 +9,26 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copy all requirements first for caching
-COPY fb-auto-poster/requirements.txt /app/fb-auto-poster/
-COPY fb-commenter-v2/requirements.txt /app/fb-commenter-v2/
-COPY fb_buyers_egypt/requirements.txt /app/fb_buyers_egypt/
-COPY rekomnd_plus/requirements.txt /app/rekomnd_plus/
-COPY whatsapp-bulk-sender/whatsapp-bulk-sender/backend/requirements.txt /app/whatsapp-bulk-sender/whatsapp-bulk-sender/backend/
-COPY whatsapp-bulk-sender/wa-server/package.json /app/whatsapp-bulk-sender/wa-server/
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r fb-auto-poster/requirements.txt && \
-    pip install --no-cache-dir -r fb-commenter-v2/requirements.txt && \
-    pip install --no-cache-dir -r fb_buyers_egypt/requirements.txt && \
-    pip install --no-cache-dir -r rekomnd_plus/requirements.txt && \
-    pip install --no-cache-dir -r whatsapp-bulk-sender/whatsapp-bulk-sender/backend/requirements.txt
-
-# Install Node dependencies
-RUN cd /app/whatsapp-bulk-sender/wa-server && npm install
-
-# Ensure Playwright browsers are installed (matches pip version)
-RUN playwright install --with-deps chromium
-
-# Copy the entire application
+# Copy everything at once (no stale cache issues)
 COPY . /app
 
-# Configure Nginx and startup script
+# Install all Python dependencies
+RUN pip install --no-cache-dir \
+    -r fb-auto-poster/requirements.txt \
+    -r fb-commenter-v2/requirements.txt \
+    -r fb_buyers_egypt/requirements.txt \
+    -r rekomnd_plus/requirements.txt \
+    -r whatsapp-bulk-sender/whatsapp-bulk-sender/backend/requirements.txt
+
+# Install Node dependencies and Playwright browsers
+RUN cd whatsapp-bulk-sender/wa-server && npm install && \
+    playwright install --with-deps chromium
+
+# Configure Nginx
 RUN cp /app/nginx.conf.template /etc/nginx/nginx.conf.template && \
     cp /app/start.sh /start.sh && \
     chmod +x /start.sh
 
-# Entrypoint
+EXPOSE 80
+
 CMD ["/start.sh"]
