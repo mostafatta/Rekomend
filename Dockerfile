@@ -9,11 +9,9 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copy everything
+# Cache-bust: force fresh copy every build
+ARG CACHE_DATE=2026-07-16
 COPY . /app
-
-# Debug: verify files exist
-RUN ls -la /app/fb-auto-poster/requirements.txt || echo "FILE NOT FOUND"
 
 # Install all Python dependencies
 RUN pip install --no-cache-dir \
