@@ -9,19 +9,22 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copy everything at once (no stale cache issues)
+# Copy everything
 COPY . /app
+
+# Debug: verify files exist
+RUN ls -la /app/fb-auto-poster/requirements.txt || echo "FILE NOT FOUND"
 
 # Install all Python dependencies
 RUN pip install --no-cache-dir \
-    -r fb-auto-poster/requirements.txt \
-    -r fb-commenter-v2/requirements.txt \
-    -r fb_buyers_egypt/requirements.txt \
-    -r rekomnd_plus/requirements.txt \
-    -r whatsapp-bulk-sender/whatsapp-bulk-sender/backend/requirements.txt
+    -r /app/fb-auto-poster/requirements.txt \
+    -r /app/fb-commenter-v2/requirements.txt \
+    -r /app/fb_buyers_egypt/requirements.txt \
+    -r /app/rekomnd_plus/requirements.txt \
+    -r /app/whatsapp-bulk-sender/whatsapp-bulk-sender/backend/requirements.txt
 
 # Install Node dependencies and Playwright browsers
-RUN cd whatsapp-bulk-sender/wa-server && npm install && \
+RUN cd /app/whatsapp-bulk-sender/wa-server && npm install && \
     playwright install --with-deps chromium
 
 # Configure Nginx
