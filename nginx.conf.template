@@ -15,6 +15,13 @@ http {
         listen ${PORT};
         server_name _;
 
+        # Health check for Railway
+        location = /api/health {
+            access_log off;
+            return 200 '{"status":"ok"}';
+            add_header Content-Type application/json;
+        }
+
         # Proxy to Main Dashboard
         location / {
             proxy_pass http://127.0.0.1:7070;
