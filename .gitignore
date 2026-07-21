@@ -53,3 +53,11 @@ Thumbs.db
 *.env
 config.env
 google_credentials.json
+
+# Temporary App Data
+sessions/
+tmp_cache/
+*.log
+*.pkl
+raw_members.json
+
